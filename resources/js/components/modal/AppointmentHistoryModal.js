@@ -1,25 +1,29 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../../store';
 import { useFetch } from '../../api';
 import {
     Box,
-    CircularProgress,
     Table,
     TableBody,
     TableCell,
     TableContainer,
     TableHead,
     TableRow,
-    Typography,
     Paper,
+    Button,
+    List,
+    Typography,
+    IconButton,
+    Tooltip,
+    Collapse,
 } from '@mui/material';
 import dateFormat from 'dateformat';
-import { Button } from 'react-bootstrap';
+import { AiOutlineMinus, AiOutlinePlus } from 'react-icons/ai';
 import CloseIcon from '@mui/icons-material/Close';
-
 
 export default function AppointmentHistoryModal() {
     const { state, dispatch } = useContext(AppContext);
+    const [isCollapsed, setIsCollapsed] = useState([]);
 
     const { data, loading } = useFetch({
         url: `/api/appointment/parent/${state.modal.data.parent_id}`,
@@ -29,19 +33,17 @@ export default function AppointmentHistoryModal() {
         dispatch({ type: 'TOGGLE_LOADING', payload: loading });
     }, [loading]);
 
-    console.log(data)
-
     const closeModal = () => {
         dispatch({
-            type: "TOGGLE_MODAL",
+            type: 'TOGGLE_MODAL',
             payload: {
                 isShown: false,
-                heading: "",
-                footer: "",
-                onHide: () => { }
-            }
-        })
-    }
+                heading: '',
+                footer: '',
+                onHide: () => { },
+            },
+        });
+    };
 
     const getStatusColor = (status) => {
         switch (status) {
@@ -69,6 +71,12 @@ export default function AppointmentHistoryModal() {
         }
     };
 
+    const handleCollapseToggle = (index) => {
+        const updatedCollapseState = [...isCollapsed];
+        updatedCollapseState[index] = !updatedCollapseState[index];
+        setIsCollapsed(updatedCollapseState);
+    };
+
     return (
         <>
             <Box p={2}>
@@ -77,6 +85,7 @@ export default function AppointmentHistoryModal() {
                         <Table>
                             <TableHead>
                                 <TableRow>
+                                    <TableCell></TableCell>
                                     <TableCell>No.</TableCell>
                                     <TableCell>Parent</TableCell>
                                     <TableCell>Child</TableCell>
@@ -91,39 +100,112 @@ export default function AppointmentHistoryModal() {
                             </TableHead>
                             <TableBody>
                                 {data.map((appointment, index) => (
-                                    <TableRow key={appointment.id}>
-                                        <TableCell>{index + 1}</TableCell>
-                                        <TableCell style={{ width: 500 }}>{appointment.user.name}</TableCell>
-                                        <TableCell style={{ width: 500 }}>{appointment.child.name}</TableCell>
-                                        <TableCell style={{ width: 500 }}>{dateFormat(appointment.child.date_of_birth, "mmmm dd, yyyy")}</TableCell>
-                                        <TableCell style={{ width: 500 }}>{dateFormat(appointment.schedule, "mmmm dd, yyyy")}</TableCell>
-                                        <TableCell style={{ width: 500 }}>{appointment.time}</TableCell>
-                                        <TableCell style={{ width: 500 }}>{appointment.appointment_type.name}</TableCell>
-                                        <TableCell style={{ width: 500 }}>{appointment.reason}</TableCell>
-                                        <TableCell style={{ width: 500 }}>
-                                            <span style={{ color: getStatusColor(appointment.remarks) }}>
-                                                {appointment.remarks === 1 ? 'Cancel' : appointment.remarks === 2 ? 'Catered' : appointment.remarks === 2 ? 'Not attended' : 'N/A'}
-                                            </span>
-                                        </TableCell>
-                                        <TableCell style={{ width: 500 }}>
-                                            <span style={{ color: getStatusColor(appointment.status) }}>
-                                                {appointment.status === 1 ? 'Pending' : appointment.status === 2 ? 'Approved' : 'Cancelled'}
-                                            </span>
-                                        </TableCell>
-                                    </TableRow>
+                                    <React.Fragment key={appointment.id}>
+                                        <TableRow>
+                                            <TableCell className="p-0 m-0 align-items-center">
+                                                <Tooltip title={isCollapsed[index] ? 'Expand' : 'Collapse'}>
+                                                    <IconButton onClick={() => handleCollapseToggle(index)}>
+                                                        {isCollapsed[index] ? <AiOutlineMinus size="24" color="#000" /> : <AiOutlinePlus size="24" color="#000" />}
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </TableCell>
+                                            <TableCell>{index + 1}</TableCell>
+                                            <TableCell style={{ width: 500 }}>{appointment.user.name}</TableCell>
+                                            <TableCell style={{ width: 500 }}>{appointment.child.name}</TableCell>
+                                            <TableCell style={{ width: 500 }}>{dateFormat(appointment.child.date_of_birth, 'mmmm dd, yyyy')}</TableCell>
+                                            <TableCell style={{ width: 500 }}>{dateFormat(appointment.schedule, 'mmmm dd, yyyy')}</TableCell>
+                                            <TableCell style={{ width: 500 }}>{appointment.time}</TableCell>
+                                            <TableCell style={{ width: 500 }}>{appointment.appointment_type.name}</TableCell>
+                                            <TableCell style={{ width: 500 }}>{appointment.reason}</TableCell>
+                                            <TableCell style={{ width: 500 }}>
+                                                <span style={{ color: getRemarksColor(appointment.remarks) }}>
+                                                    {appointment.remarks === 1 ? 'Cancel' : appointment.remarks === 2 ? 'Catered' : appointment.remarks === 3 ? 'Not attended' : 'N/A'}
+                                                </span>
+                                            </TableCell>
+                                            <TableCell style={{ width: 500 }}>
+                                                <span style={{ color: getStatusColor(appointment.status) }}>
+                                                    {appointment.status === 1 ? 'Pending' : appointment.status === 2 ? 'Approved' : 'Cancelled'}
+                                                </span>
+                                            </TableCell>
+                                        </TableRow>
+                                        {isCollapsed[index] && (
+                                            <TableRow>
+                                                <TableCell colSpan={11} className="p-0">
+                                                    <List className="" style={{ background: '#fff' }}>
+                                                        <Collapse in={isCollapsed[index]} timeout="auto" unmountOnExit>
+                                                            <Typography variant="h6" className="m-3">
+                                                                Diagnosis
+                                                            </Typography>
+                                                            {appointment.diagnosis ? (
+                                                                <Table>
+                                                                    <TableHead>
+                                                                        <TableRow>
+                                                                            <TableCell>Schedule</TableCell>
+                                                                            <TableCell>Age</TableCell>
+                                                                            <TableCell>Weight</TableCell>
+                                                                            <TableCell>Height</TableCell>
+                                                                            <TableCell>Notes</TableCell>
+                                                                        </TableRow>
+                                                                    </TableHead>
+                                                                    <TableBody>
+                                                                        <TableRow>
+                                                                            <TableCell>{appointment.diagnosis.schedule}</TableCell>
+                                                                            <TableCell>{appointment.diagnosis.age}</TableCell>
+                                                                            <TableCell>{appointment.diagnosis.weight}</TableCell>
+                                                                            <TableCell>{appointment.diagnosis.height}</TableCell>
+                                                                            <TableCell>{appointment.diagnosis.notes}</TableCell>
+                                                                        </TableRow>
+                                                                    </TableBody>
+                                                                </Table>
+                                                            ) : (
+                                                                <Typography variant="body1 m-3">No diagnosis available</Typography>
+                                                            )}
+                                                            <Typography variant="h6" className="m-3">
+                                                                {appointment.prescription ? (
+                                                                    `Prescription (weight ${appointment.prescription.weight})`
+                                                                ) : (
+                                                                    'Prescription'
+                                                                )}
+                                                            </Typography>
+                                                            {appointment.prescription ? (
+                                                                <Table>
+                                                                    <TableHead>
+                                                                        <TableRow>
+                                                                            <TableCell>Details</TableCell>
+                                                                            <TableCell>Taken</TableCell>
+                                                                            <TableCell>Remarks</TableCell>
+                                                                        </TableRow>
+                                                                    </TableHead>
+                                                                    <TableBody>
+                                                                        {appointment.prescription.prescription_medications.map((prescriptionMedications, index) => (
+                                                                            <TableRow key={index + 1}>
+                                                                                <TableCell>{prescriptionMedications.details}</TableCell>
+                                                                                <TableCell>{prescriptionMedications.taken}</TableCell>
+                                                                                <TableCell>{prescriptionMedications.remarks}</TableCell>
+                                                                            </TableRow>
+                                                                        ))}
+                                                                    </TableBody>
+                                                                </Table>
+                                                            ) : (
+                                                                <Typography variant="body1 m-3">No prescription available</Typography>
+                                                            )}
+                                                        </Collapse>
+                                                    </List>
+                                                </TableCell>
+                                            </TableRow>
+                                        )}
+                                    </React.Fragment>
                                 ))}
                             </TableBody>
                         </Table>
                     </TableContainer>
                 ) : (
-                    <Typography variant="body1">
-                        No appointments found for this user.
-                    </Typography>
+                    <Typography variant="body1">No appointments found for this user.</Typography>
                 )}
             </Box>
 
             <div className="gap-3 mt-3 d-flex align-items-center justify-content-end">
-                <Button className="d-flex align-items-center justfiy-content-center" variant="danger" data-bs-dismiss="modal" onClick={() => closeModal()}>
+                <Button className="d-flex align-items-center justfiy-content-center" variant="danger" data-bs-dismiss="modal" onClick={closeModal}>
                     <CloseIcon /> Close
                 </Button>
             </div>

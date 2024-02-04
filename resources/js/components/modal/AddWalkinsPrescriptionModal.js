@@ -12,7 +12,7 @@ import dateFormat from 'dateformat';
 import CloseIcon from '@mui/icons-material/Close';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 
-export default function AddWalkinsPrescriptionModal({ parent, child }) {
+export default function AddWalkinsPrescriptionModal({ walkins_id, parent, child }) {
     let history = useHistory();
     const { state, dispatch } = useContext(AppContext);
     const [selectedParent, setSelectedParent] = useState(null);
@@ -101,6 +101,7 @@ export default function AddWalkinsPrescriptionModal({ parent, child }) {
             }).then((result) => {
                 if (result.isConfirmed) {
                     let fd = new FormData();
+                    fd.append("walkins_appointment_id", walkins_id ?? "")
                     fd.append('parent', parent ? parent : selectedParent.value);
                     fd.append('child', child ? child : selectedChild.value);
                     fd.append("doctor_id", doctors.data?.id)

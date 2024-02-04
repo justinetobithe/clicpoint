@@ -20,6 +20,27 @@ class DiagnosisController extends Controller
         return Diagnosis::with(['user', 'children'])->orderBy('id', 'desc')->get();
     }
 
+    public function listDiagnosesForWalkins()
+    {
+        $diagnoses = Diagnosis::whereNotNull('child')
+            ->whereNotNull('parent')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        return $diagnoses;
+    }
+
+    public function listDiagnosesForOnline()
+    {
+        $diagnoses = Diagnosis::with(['user', 'children'])
+            ->whereNotNull('child_id')
+            ->whereNotNull('parent_id')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        return $diagnoses;
+    }
+
     public function getDiagnosisByParentAndChild($parent, $child, $type)
     {
         if ($type == "Online") {
@@ -136,6 +157,7 @@ class DiagnosisController extends Controller
             } else if ($request->type === "Walk-ins") {
                 $data['parent'] = $request->parent;
                 $data['child'] = $request->child;
+                $data['walkins_appointment_id'] = $request->walkins_appointment_id ?? '';
             }
 
             $insertDiagnosis = Diagnosis::create($data);

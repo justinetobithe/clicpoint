@@ -42,7 +42,7 @@ class WalkInAppointmentController extends Controller
 
     public function getAppointmentHistory($parent, $child)
     {
-        $appointments = WalkInAppointment::with(['appointmentType', 'healthCondition'])
+        $appointments = WalkInAppointment::with(['appointmentType', 'healthCondition', 'diagnosis', 'prescription.prescription_medications'])
             ->when($parent, function ($query) use ($parent) {
                 return $query->where('parent', $parent);
             })

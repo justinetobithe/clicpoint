@@ -26,6 +26,7 @@ import { Link, useLocation } from 'react-router-dom';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import InputBase from '@mui/material/InputBase';
 import SearchIcon from '@mui/icons-material/Search';
+import SortByAlphaIcon from '@mui/icons-material/SortByAlpha';
 
 TablePaginationActions.propTypes = {
     count: PropTypes.number.isRequired,
@@ -40,8 +41,10 @@ export default function PrescriptionForWalkins() {
     const [searchTerm, setSearchTerm] = useState('');
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [sortOrder, setSortOrder] = useState('asc');
 
     const location = useLocation();
+    const walkins_id = new URLSearchParams(location.search).get('walkins_id');
     const parent = new URLSearchParams(location.search).get('parent');
     const child = new URLSearchParams(location.search).get('child');
 
@@ -58,7 +61,7 @@ export default function PrescriptionForWalkins() {
     };
 
     const { data, loading } = useFetch({
-        url: `/api/prescriptions`
+        url: `/api/prescription/walkins`
     })
 
     useEffect(() => {
@@ -127,6 +130,7 @@ export default function PrescriptionForWalkins() {
                 },
                 data,
                 children: <AddWalkinsPrescriptionModal
+                    walkins_id={walkins_id}
                     parent={parent}
                     child={child}
                 />
@@ -158,12 +162,21 @@ export default function PrescriptionForWalkins() {
             );
         });
 
-
-
-
     const handleSearch = (e) => {
         setSearchTerm(e.target.value);
     };
+
+    const handleSort = () => {
+        const sortedPrescriptions = [...filteredPrescriptions].sort((a, b) => {
+            const dateA = new Date(a.created_at);
+            const dateB = new Date(b.created_at);
+            return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+        });
+
+        setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+        dispatch({ type: "FETCH_PRESCRIPTION", payload: sortedPrescriptions });
+    };
+
 
     return (
         <>
@@ -197,14 +210,25 @@ export default function PrescriptionForWalkins() {
                     <Box sx={{ width: '100%' }}>
                         <Paper sx={{ width: '100%', mb: 2 }}>
                             <TableContainer component={Paper}>
-                                <Typography
-                                    style={{ padding: "15px" }}
-                                    variant="h6"
-                                    id="tableTitle"
-                                    component="div"
-                                >
-                                    Prescriptions (Walk-ins)
-                                </Typography>
+                                <div className="row">
+                                    <div className="col-md-8 d-flex align-items-center">
+                                        <Typography
+                                            style={{ padding: "15px" }}
+                                            variant="h6"
+                                            id="tableTitle"
+                                            component="div"
+                                        >
+                                            List of Prescription (Walk-ins)
+                                        </Typography>
+                                    </div>
+                                    <div className="col-md-4 d-flex align-items-center justify-content-end">
+                                        <Tooltip title="Sort by date">
+                                            <IconButton onClick={handleSort}>
+                                                <SortByAlphaIcon />
+                                            </IconButton>
+                                        </Tooltip>
+                                    </div>
+                                </div>
                                 <Table sx={{ minWidth: 500, borderTop: "1px solid rgba(224, 224, 224, 1)" }} aria-label="custom pagination table">
                                     <TableHead>
                                         <TableRow>
@@ -222,53 +246,51 @@ export default function PrescriptionForWalkins() {
                                             ? filteredPrescriptions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                             : filteredPrescriptions
                                         ).map((row, index) => (
-                                            (row.parent_id === null && row.child_id === null) && (
-                                                <TableRow key={row.id}>
-                                                    <TableCell component="th" scope="row">
-                                                        {index + 1}
-                                                    </TableCell>
-                                                    <TableCell>{row.parent}</TableCell>
-                                                    <TableCell>{row.child}</TableCell>
-                                                    <TableCell>{row.doctor?.user?.name}</TableCell>
-                                                    <TableCell>
-                                                        {row.weight}
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        {dateFormat(row.created_at, "mmmm  d, yyyy")}
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <Tooltip title="Edit">
-                                                            <IconButton
-                                                                component={Link}
-                                                                to={`/prescript/edit/${row.id}`}
-                                                                aria-label="edit"
-                                                                color="secondary"
-                                                            >
-                                                                <EditIcon />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                        <Tooltip title="View">
-                                                            <IconButton
-                                                                aria-label="view"
-                                                                color="primary"
-                                                                onClick={() => openPrescriptionInNewTab(row.id)}
-                                                            >
-                                                                <VisibilityIcon />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                        {
-                                                            state.user.role == 4 && (
-                                                                <Tooltip title="Delete">
-                                                                    <IconButton aria-label="delete" color="error" onClick={() => onDelete(row.id)}>
-                                                                        <DeleteIcon />
-                                                                    </IconButton>
-                                                                </Tooltip>
-                                                            )
-                                                        }
+                                            <TableRow key={row.id}>
+                                                <TableCell component="th" scope="row">
+                                                    {index + 1}
+                                                </TableCell>
+                                                <TableCell>{row.parent}</TableCell>
+                                                <TableCell>{row.child}</TableCell>
+                                                <TableCell>{row.doctor?.user?.name}</TableCell>
+                                                <TableCell>
+                                                    {row.weight}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {dateFormat(row.created_at, "mmmm  d, yyyy")}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Tooltip title="Edit">
+                                                        <IconButton
+                                                            component={Link}
+                                                            to={`/prescript/edit/${row.id}`}
+                                                            aria-label="edit"
+                                                            color="secondary"
+                                                        >
+                                                            <EditIcon />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                    <Tooltip title="View">
+                                                        <IconButton
+                                                            aria-label="view"
+                                                            color="primary"
+                                                            onClick={() => openPrescriptionInNewTab(row.id)}
+                                                        >
+                                                            <VisibilityIcon />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                    {
+                                                        state.user.role == 4 && (
+                                                            <Tooltip title="Delete">
+                                                                <IconButton aria-label="delete" color="error" onClick={() => onDelete(row.id)}>
+                                                                    <DeleteIcon />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                        )
+                                                    }
 
-                                                    </TableCell>
-                                                </TableRow>
-                                            )
+                                                </TableCell>
+                                            </TableRow>
                                         ))}
 
                                         {emptyRows > 0 && (

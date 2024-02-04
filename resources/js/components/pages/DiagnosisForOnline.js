@@ -60,7 +60,7 @@ export default function DiagnosisForOnline() {
     };
 
     const { data, loading } = useFetch({
-        url: "/api/diagnosis"
+        url: "/api/diagnoses/online"
     })
 
     useEffect(() => {
@@ -93,14 +93,11 @@ export default function DiagnosisForOnline() {
         const sortedDiagnosisData = [...state.diagnosis];
 
         sortedDiagnosisData.sort((a, b) => {
-            if (a.parent == null && a.child == null) {
-                const dateA = new Date(a.schedule).getTime();
-                const dateB = new Date(b.schedule).getTime();
+            const dateA = new Date(a.schedule).getTime();
+            const dateB = new Date(b.schedule).getTime();
 
-                return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
-            }
+            return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
 
-            return 0;
         });
 
         setSortedDiagnosis(sortedDiagnosisData);
@@ -199,7 +196,7 @@ export default function DiagnosisForOnline() {
                                         </Typography>
                                     </div>
                                     <div className="col-md-4 d-flex align-items-center justify-content-end">
-                                        <Tooltip title="Sort">
+                                        <Tooltip title="Sort by date">
                                             <IconButton onClick={handleSort}>
                                                 <SortByAlphaIcon />
                                             </IconButton>
@@ -225,31 +222,29 @@ export default function DiagnosisForOnline() {
                                             ? sortedDiagnosis.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                             : sortedDiagnosis
                                         ).map((row, index) => (
-                                            (row.parent == null && row.child == null) && (
-                                                <TableRow key={index + 1}>
-                                                    <TableCell component="th" scope="row">
-                                                        {index + 1}
-                                                    </TableCell>
-                                                    <TableCell>{row.user?.name}</TableCell>
-                                                    <TableCell>{row.children?.name}</TableCell>
-                                                    <TableCell>{dateFormat(row.schedule, "mmmm d, yyyy")}</TableCell>
-                                                    <TableCell>{row.age}</TableCell>
-                                                    <TableCell>{row.weight}</TableCell>
-                                                    <TableCell>{row.height}</TableCell>
-                                                    <TableCell>{row.notes}</TableCell>
-                                                    <TableCell>
-                                                        {
-                                                            state.user.role == 4 && (
-                                                                <Tooltip title="Delete">
-                                                                    <IconButton aria-label="delete" color="error" onClick={() => onDelete(row.id)}>
-                                                                        <DeleteIcon />
-                                                                    </IconButton>
-                                                                </Tooltip>
-                                                            )
-                                                        }
-                                                    </TableCell>
-                                                </TableRow>
-                                            )
+                                            <TableRow key={index + 1}>
+                                                <TableCell component="th" scope="row">
+                                                    {index + 1}
+                                                </TableCell>
+                                                <TableCell>{row.user?.name}</TableCell>
+                                                <TableCell>{row.children?.name}</TableCell>
+                                                <TableCell>{dateFormat(row.schedule, "mmmm d, yyyy")}</TableCell>
+                                                <TableCell>{row.age}</TableCell>
+                                                <TableCell>{row.weight}</TableCell>
+                                                <TableCell>{row.height}</TableCell>
+                                                <TableCell>{row.notes}</TableCell>
+                                                <TableCell>
+                                                    {
+                                                        state.user.role == 4 && (
+                                                            <Tooltip title="Delete">
+                                                                <IconButton aria-label="delete" color="error" onClick={() => onDelete(row.id)}>
+                                                                    <DeleteIcon />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                        )
+                                                    }
+                                                </TableCell>
+                                            </TableRow>
                                         ))}
 
                                         {emptyRows > 0 && (

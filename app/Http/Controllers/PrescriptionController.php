@@ -24,6 +24,27 @@ class PrescriptionController extends Controller
         return $prescriptions;
     }
 
+    public function listPrescriptionForWalkins()
+    {
+        $prescription = Prescription::whereNotNull('child')
+            ->whereNotNull('parent')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        return $prescription;
+    }
+
+    public function listPrescriptionForOnline()
+    {
+        $prescription = Prescription::with(['user', 'children'])
+            ->whereNotNull('child_id')
+            ->whereNotNull('parent_id')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        return $prescription;
+    }
+
     public function getPrescriptionsByParentAndChild($parent, $child, $type)
     {
         if ($type == "Online") {
@@ -105,6 +126,7 @@ class PrescriptionController extends Controller
         } else if ($request->type === "Walk-ins") {
             $data['parent'] = $request->parent;
             $data['child'] = $request->child;
+            $data['walkins_appointment_id'] = $request->walkins_appointment_id ?? '';
         }
 
         $create_prescription = Prescription::create($data);

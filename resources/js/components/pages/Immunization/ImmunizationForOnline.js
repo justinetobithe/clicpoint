@@ -168,11 +168,15 @@ export default function ImmunizationForOnline() {
                                                     <TableCell>{row.remarks}</TableCell>
                                                     <TableCell>{dateFormat(row.date_vaccinated, "mmmm dd, yyyy")}</TableCell>
                                                     <TableCell>
-                                                        <Tooltip title="Delete">
-                                                            <IconButton aria-label="delete" color="error" onClick={() => onDelete(row.id)}>
-                                                                <DeleteIcon />
-                                                            </IconButton>
-                                                        </Tooltip>
+                                                        {
+                                                            state.user.role == 4 && (
+                                                                <Tooltip title="Delete">
+                                                                    <IconButton aria-label="delete" color="error" onClick={() => onDelete(row.id)}>
+                                                                        <DeleteIcon />
+                                                                    </IconButton>
+                                                                </Tooltip>
+                                                            )
+                                                        }
                                                     </TableCell>
                                                 </TableRow>
                                             )

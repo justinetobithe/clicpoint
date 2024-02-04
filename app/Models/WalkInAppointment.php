@@ -20,4 +20,14 @@ class WalkInAppointment extends Model
     {
         return $this->belongsTo(HealthCondition::class, 'health_condition_id');
     }
+
+    public function diagnosis()
+    {
+        return $this->hasOne(Diagnosis::class, 'walkins_appointment_id');
+    }
+
+    public function prescription()
+    {
+        return $this->hasOne(Prescription::class, 'walkins_appointment_id');
+    }
 }

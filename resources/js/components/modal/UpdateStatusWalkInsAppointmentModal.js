@@ -140,12 +140,12 @@ export default function UpdateStatusWalkInsAppointmentModal({ appointment }) {
     };
 
     const handleDiagnosisClick = () => {
-        const url = `/record/diagnosis/walk-ins?parent=${state.modal.data.parent}&child=${state.modal.data.child}`;
+        const url = `/record/diagnosis/walk-ins?walkins_id=${state.modal.data.id}&parent=${state.modal.data.parent}&child=${state.modal.data.child}`;
         window.open(url, '_blank');
     };
 
     const handlePrescriptionClick = () => {
-        const url = `/prescription/walk-ins?parent=${state.modal.data.parent}&child=${state.modal.data.child}`;
+        const url = `/prescription/walk-ins?walkins_id=${state.modal.data.id}&parent=${state.modal.data.parent}&child=${state.modal.data.child}`;
         window.open(url, '_blank');
     };
 
@@ -209,6 +209,7 @@ export default function UpdateStatusWalkInsAppointmentModal({ appointment }) {
                                         onChange={(e) => setStartTime(e.target.value)}
                                         min="09:00"
                                         max="17:00"
+                                        disabled={!selectedStatus || selectedStatus.value !== 2}
                                     />
                                 </div>
                             </Col>
@@ -221,12 +222,11 @@ export default function UpdateStatusWalkInsAppointmentModal({ appointment }) {
                                         onChange={(e) => setEndTime(e.target.value)}
                                         min="09:00"
                                         max="17:00"
+                                        disabled={!selectedStatus || selectedStatus.value !== 2}
                                     />
                                 </div>
                             </Col>
                         </Row>
-
-
                     </Form.Group>
                 ) : null}
                 <div className="gap-3 mt-3 d-flex align-items-center justify-content-end">

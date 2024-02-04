@@ -22,8 +22,8 @@ import { useFetch, useHttpRequest } from '../../api';
 import Swal from 'sweetalert2';
 import AddVaccineModal from '../modal/AddVaccineModal';
 import EditVaccineModal from '../modal/EditVaccineModal';
-import InputBase from '@mui/material/InputBase'; 
-import SearchIcon from '@mui/icons-material/Search'; 
+import InputBase from '@mui/material/InputBase';
+import SearchIcon from '@mui/icons-material/Search';
 
 TablePaginationActions.propTypes = {
     count: PropTypes.number.isRequired,
@@ -155,7 +155,7 @@ export default function ListOfVaccines() {
             <div className="d-sm-flex align-items-center justify-content-between mb-4">
                 <h1 className="h3 mb-0 text-gray-800">List of Vaccines</h1>
                 <Paper
-                    component="form" 
+                    component="form"
                     className="d-block shadow-sm"
                 >
                     <InputBase
@@ -217,11 +217,15 @@ export default function ListOfVaccines() {
                                                             <EditIcon />
                                                         </IconButton>
                                                     </Tooltip>
-                                                    <Tooltip title="Delete">
-                                                        <IconButton aria-label="delete" color="error" onClick={() => onDelete(row.id)}>
-                                                            <DeleteIcon />
-                                                        </IconButton>
-                                                    </Tooltip>
+                                                    {
+                                                        state.user.role == 4 && (
+                                                            <Tooltip title="Delete">
+                                                                <IconButton aria-label="delete" color="error" onClick={() => onDelete(row.id)}>
+                                                                    <DeleteIcon />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                        )
+                                                    }
                                                 </TableCell>
                                             </TableRow>
                                         ))}

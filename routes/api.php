@@ -82,6 +82,8 @@ Route::delete('/prescription-medications/{id}', [PrescriptionController::class, 
 Route::get('/prescriptions-medications/{id}', [PrescriptionController::class, 'showMedication']);
 Route::get('/prescription/child/{child_id}', [PrescriptionController::class, 'showByChildId']);
 Route::get('/prescription/parent/{parent}/child/{child}/type/{type}', [PrescriptionController::class, 'getPrescriptionsByParentAndChild']);
+Route::get('/prescription/walkins', [PrescriptionController::class, 'listPrescriptionForWalkins']);
+Route::get('/prescription/online', [PrescriptionController::class, 'listPrescriptionForOnline']);
 
 Route::get('/outpatient/distinct-parents', [OutpatientController::class, 'distinctParents']);
 Route::get('/outpatient/children-by-parent/{parent}', [OutpatientController::class, 'childrenByParent']);
@@ -96,7 +98,8 @@ Route::get('/appointment/count-by-month', [AppointmentController::class, 'countA
 Route::get('/appointment/count-health-conditions-and-immunizations', [AppointmentController::class, 'countHealthConditionsAndImmunizations']);
 
 Route::get('/diagnoses/parent/{parent}/child/{child}/type/{type}', [DiagnosisController::class, 'getDiagnosisByParentAndChild']);
-
+Route::get('/diagnoses/walkins', [DiagnosisController::class, 'listDiagnosesForWalkins']);
+Route::get('/diagnoses/online', [DiagnosisController::class, 'listDiagnosesForOnline']);
 
 Route::get('/patient/{id}', [PatientController::class, 'show_patient']);
 

@@ -11,7 +11,7 @@ import dateFormat from 'dateformat';
 import DatePicker from 'react-datepicker';
 import Select from 'react-select';
 
-export default function AddWalkinsDiagnosisModal({ parent, child }) {
+export default function AddWalkinsDiagnosisModal({ walkins_id, parent, child }) {
 
     const { state, dispatch } = useContext(AppContext);
     const [selectedDate, setSelectedDate] = useState(null);
@@ -95,6 +95,7 @@ export default function AddWalkinsDiagnosisModal({ parent, child }) {
                 if (result.isConfirmed) {
                     const formData = {
                         // child_name: data.child_name,
+                        walkins_appointment_id: walkins_id ?? "",
                         parent: parent ? parent : selectedParent.value,
                         child: child ? child : selectedChild.value,
                         schedule: dateFormat(selectedDate, "yyyy-mm-dd"),

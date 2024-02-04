@@ -42,6 +42,7 @@ export default function DiagnosisForWalkins() {
     const [sortedDiagnosis, setSortedDiagnosis] = useState([]);
 
     const location = useLocation();
+    const walkins_id = new URLSearchParams(location.search).get('walkins_id');
     const parent = new URLSearchParams(location.search).get('parent');
     const child = new URLSearchParams(location.search).get('child');
 
@@ -58,7 +59,7 @@ export default function DiagnosisForWalkins() {
     };
 
     const { data, loading } = useFetch({
-        url: "/api/diagnosis"
+        url: "/api/diagnoses/walkins"
     })
 
     useEffect(() => {
@@ -73,14 +74,11 @@ export default function DiagnosisForWalkins() {
         const sortedDiagnosisData = [...state.diagnosis];
 
         sortedDiagnosisData.sort((a, b) => {
-            if (a.parent_id === null && a.child_id === null) {
-                const dateA = new Date(a.schedule).getTime();
-                const dateB = new Date(b.schedule).getTime();
+            const dateA = new Date(a.schedule).getTime();
+            const dateB = new Date(b.schedule).getTime();
 
-                return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
-            }
+            return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
 
-            return 0;
         });
 
         setSortedDiagnosis(sortedDiagnosisData);
@@ -98,7 +96,6 @@ export default function DiagnosisForWalkins() {
                 return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
             }
 
-            return 0;
         });
 
         setSortedDiagnosis(sortedDiagnosisData);
@@ -119,6 +116,7 @@ export default function DiagnosisForWalkins() {
                     })
                 },
                 children: <AddWalkinsDiagnosisModal
+                    walkins_id={walkins_id}
                     parent={parent}
                     child={child}
                 />
@@ -219,31 +217,29 @@ export default function DiagnosisForWalkins() {
                                             ? sortedDiagnosis.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                             : sortedDiagnosis
                                         ).map((row, index) => (
-                                            (row.parent_id === null && row.child_id === null) && (
-                                                <TableRow key={index + 1}>
-                                                    <TableCell component="th" scope="row">
-                                                        {index + 1}
-                                                    </TableCell>
-                                                    <TableCell>{row.parent}</TableCell>
-                                                    <TableCell>{row.child}</TableCell>
-                                                    <TableCell>{dateFormat(row.schedule, "mmmm d, yyyy")}</TableCell>
-                                                    <TableCell>{row.age}</TableCell>
-                                                    <TableCell>{row.weight}</TableCell>
-                                                    <TableCell>{row.height}</TableCell>
-                                                    <TableCell>{row.notes}</TableCell>
-                                                    <TableCell>
-                                                        {
-                                                            state.user.role == 4 && (
-                                                                <Tooltip title="Delete">
-                                                                    <IconButton aria-label="delete" color="error" onClick={() => onDelete(row.id)}>
-                                                                        <DeleteIcon />
-                                                                    </IconButton>
-                                                                </Tooltip>
-                                                            )
-                                                        }
-                                                    </TableCell>
-                                                </TableRow>
-                                            )
+                                            <TableRow key={index + 1}>
+                                                <TableCell component="th" scope="row">
+                                                    {index + 1}
+                                                </TableCell>
+                                                <TableCell>{row.parent}</TableCell>
+                                                <TableCell>{row.child}</TableCell>
+                                                <TableCell>{dateFormat(row.schedule, "mmmm d, yyyy")}</TableCell>
+                                                <TableCell>{row.age}</TableCell>
+                                                <TableCell>{row.weight}</TableCell>
+                                                <TableCell>{row.height}</TableCell>
+                                                <TableCell>{row.notes}</TableCell>
+                                                <TableCell>
+                                                    {
+                                                        state.user.role == 4 && (
+                                                            <Tooltip title="Delete">
+                                                                <IconButton aria-label="delete" color="error" onClick={() => onDelete(row.id)}>
+                                                                    <DeleteIcon />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                        )
+                                                    }
+                                                </TableCell>
+                                            </TableRow>
                                         ))}
 
                                         {emptyRows > 0 && (
